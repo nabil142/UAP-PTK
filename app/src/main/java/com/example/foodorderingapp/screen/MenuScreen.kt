@@ -1,15 +1,17 @@
 package com.example.foodorderingapp.screen
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.foodorderingapp.model.FoodItem
-
+import androidx.compose.runtime.saveable.rememberSaveable
 @Composable
 fun MenuScreen(
     foodList: MutableList<FoodItem>,
@@ -21,6 +23,10 @@ fun MenuScreen(
 
     val totalPrice =
         foodList.sumOf { it.quantity * it.price }
+
+    var notes by rememberSaveable {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
@@ -35,19 +41,50 @@ fun MenuScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (totalItems == 0) {
+        // SUMMARY CARD
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
 
-            Text("No orders yet")
-
-        } else {
-
-            Card(
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
 
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
+                if (totalItems == 0) {
+
+                    Text("No orders yet")
+
+                } else {
+
+                    Text(
+                        text = "Order Summary",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    foodList
+                        .filter { it.quantity > 0 }
+                        .forEach { item ->
+
+                            Text(
+                                text =
+                                    "${item.name} x${item.quantity}"
+                            )
+
+                            Text(
+                                text =
+                                    "Subtotal: Rp${item.quantity * item.price}"
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(8.dp)
+                            )
+                        }
+
+                    Divider()
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text("Total Items: $totalItems")
 
@@ -55,6 +92,19 @@ fun MenuScreen(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = notes,
+            onValueChange = {
+                notes = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Order Notes")
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
